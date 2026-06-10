@@ -1,0 +1,54 @@
+# TrustLens — Render Blueprint
+# Deploy: https://dashboard.render.com/select-repo?type=blueprint
+#
+# Prerequisites:
+# 1. Create a MongoDB Atlas cluster and copy the connection string
+# 2. Set environment variables in Render dashboard after deploy
+
+services:
+  # ── Node.js Backend API ──────────────────────────────────────
+  - type: web
+    name: trustlens-api
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PYTHON_OCR_URL
+        fromService:
+          name: trustlens-ocr
+          type: web
+          property: hostport
+      - key: FRONTEND_URL
+        sync: false
+      - key: ADMIN_SECRET
+        generateValue: true
+
+  # ── Python OCR Microservice ──────────────────────────────────
+  - type: web
+    name: trustlens-ocr
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: python-services
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn ocr_service:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      # On Render Linux, tesseract is available via apt in native environment
+      # Set these if using a custom Docker image:
+      # - key: TESSERACT_CMD
+      #   value: /usr/bin/tesseract
