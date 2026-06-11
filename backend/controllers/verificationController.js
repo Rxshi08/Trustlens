@@ -237,13 +237,19 @@ async function generatePDF(data) {
 
   const pdfBytes = await pdfDoc.save();
 
-  const fileName = `report_${Date.now()}.pdf`;
-  const reportPath = path.join(__dirname, "../reports", fileName);
+  const reportsDir = path.join(__dirname, "../reports");
 
-  fs.writeFileSync(reportPath, pdfBytes);
-
-  return `/reports/${fileName}`;
+if (!fs.existsSync(reportsDir)) {
+  fs.mkdirSync(reportsDir, { recursive: true });
 }
+
+const fileName = `report_${Date.now()}.pdf`;
+const reportPath = path.join(reportsDir, fileName);
+
+fs.writeFileSync(reportPath, pdfBytes);
+
+return `/reports/${fileName}`;
+
 
 exports.verifyDocuments = async (req, res) => {
   try {
