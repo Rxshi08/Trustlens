@@ -249,6 +249,7 @@ const reportPath = path.join(reportsDir, fileName);
 fs.writeFileSync(reportPath, pdfBytes);
 
 return `/reports/${fileName}`;
+}
 
 
 exports.verifyDocuments = async (req, res) => {
