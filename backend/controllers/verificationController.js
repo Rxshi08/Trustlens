@@ -13,27 +13,18 @@ function getOcrBaseUrl() {
 async function runOcr(filePath, docType) {
   const absoluteFilePath = path.resolve(filePath);
 
-  try {
-    const form = new FormData();
-    form.append("file", fs.createReadStream(absoluteFilePath));
-    form.append("docType", docType);
+  const form = new FormData();
+  form.append("file", fs.createReadStream(absoluteFilePath));
+  form.append("docType", docType);
 
-    const response = await axios.post(`${getOcrBaseUrl()}/ocr/upload`, form, {
-      headers: form.getHeaders(),
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-      timeout: 120000
-    });
+  const response = await axios.post(`${getOcrBaseUrl()}/ocr/upload`, form, {
+    headers: form.getHeaders(),
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+    timeout: 120000
+  });
 
-    return response.data;
-  } catch {
-    const response = await axios.post(`${getOcrBaseUrl()}/ocr`, {
-      filePath: absoluteFilePath,
-      docType
-    });
-
-    return response.data;
-  }
+  return response.data;
 }
 
 function normalizeName(name) {
